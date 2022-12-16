@@ -1,0 +1,35 @@
+version: '3.1'
+services:
+    mariadb:
+        image: 'mariadb:10.6'
+        container_name: mysql-symfony
+        working_dir: /application
+        volumes:
+            - '.:/application'
+        environment:
+            - MYSQL_DATABASE=homestead
+            - MYSQL_ROOT_PASSWORD=secret
+            - MYSQL_USER=homestead
+            - MYSQL_PASSWORD=secret
+            - SERVICE_TAGS=local
+            - SERVICE_NAME=mariadb
+        ports:
+            - '30004:3306'
+
+    webserver:
+        image: 'nginx:alpine'
+        working_dir: /application
+        container_name: webserver-symfony
+        volumes:
+            - '.:/application'
+            - './phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf'
+        ports:
+            - '30001:80'
+
+    php-fpm:
+        build: phpdocker/php-fpm
+        working_dir: /application
+        container_name: app-symfony
+        volumes:
+            - '.:/application'
+            - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.2/fpm/conf.d/99-overrides.ini'
